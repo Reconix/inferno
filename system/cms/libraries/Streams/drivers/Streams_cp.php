@@ -9,8 +9,8 @@
  * @package		PyroStreams
  * @author		PyroCMS Dev Team
  * @copyright	Copyright (c) 2011 - 2013, PyroCMS
- */ 
- 
+ */
+
 class Streams_cp extends CI_Driver {
 
 	private $CI;
@@ -46,7 +46,7 @@ class Streams_cp extends CI_Driver {
 	 *
 	 * title	- Title of the page header (if using view override)
 	 *			$extra['title'] = 'Streams Sample';
-	 * 
+	 *
 	 * buttons	- an array of buttons (if using view override)
 	 *			$extra['buttons'] = array(
 	 *				'label' 	=> 'Delete',
@@ -64,7 +64,7 @@ class Streams_cp extends CI_Driver {
 	public function entries_table($stream_slug, $namespace_slug, $pagination = null, $pagination_uri = null, $view_override = false, $extra = array())
 	{
 		$CI = get_instance();
-		
+
 		// Get stream
 		$stream = $this->stream_obj($stream_slug, $namespace_slug);
 		if ( ! $stream) $this->log_error('invalid_stream', 'entries_table');
@@ -72,10 +72,10 @@ class Streams_cp extends CI_Driver {
  		// -------------------------------------
 		// Get Header Fields
 		// -------------------------------------
-		
+
  		$stream_fields = $CI->streams_m->get_stream_fields($stream->id);
 
- 		// We need to make sure that stream_fields is 
+ 		// We need to make sure that stream_fields is
  		// at least an empty object.
  		if ( ! is_object($stream_fields))
  		{
@@ -95,12 +95,12 @@ class Streams_cp extends CI_Driver {
  		// -------------------------------------
 		// Find offset URI from array
 		// -------------------------------------
-		
+
 		if (is_numeric($pagination))
 		{
 			$segs = explode('/', $pagination_uri);
 			$offset_uri = count($segs)+1;
-	
+
 	 		$offset = $CI->uri->segment($offset_uri, 0);
 
 			// Calculate actual offset if not first page
@@ -126,14 +126,14 @@ class Streams_cp extends CI_Driver {
 
 			// As an added measure of obsurity, we are going to encrypt the
 			// slug of the module so it isn't easily changed.
-			$CI->load->library('encrypt');
+			$CI->load->library('encryption');
 
 			// We need some variables to use in the sort.
-			$CI->template->append_metadata('<script type="text/javascript" language="javascript">var stream_id='.$stream->id.'; var stream_offset='.$offset.'; var streams_module="'.$CI->encrypt->encode($CI->module_details['slug']).'";
+			$CI->template->append_metadata('<script type="text/javascript" language="javascript">var stream_id='.$stream->id.'; var stream_offset='.$offset.'; var streams_module="'.$CI->encryption->decrypt($CI->module_details['slug']).'";
 				</script>');
 			$CI->template->append_js('streams/entry_sorting.js');
 		}
-  
+
   		$data = array(
   			'stream'		=> $stream,
   			'stream_fields'	=> $stream_fields,
@@ -141,7 +141,7 @@ class Streams_cp extends CI_Driver {
   			'filters'		=> isset($extra['filters']) ? $extra['filters'] : null,
   			'search_id'		=> isset($_COOKIE['streams_core_filters']) ? $_COOKIE['streams_core_filters'] : null,
   		);
- 
+
   		// -------------------------------------
 		// Columns
 		// @since 2.1.5
@@ -238,12 +238,12 @@ class Streams_cp extends CI_Driver {
  		// -------------------------------------
 		// Get Entries
 		// -------------------------------------
-		
+
 		$limit = ($pagination) ? $pagination : null;
-	
+
 		$data['entries'] = $CI->streams_m->get_stream_data(
 														$stream,
-														$stream_fields, 
+														$stream_fields,
 														$limit,
 														$offset,
 														$filter_data);
@@ -264,11 +264,11 @@ class Streams_cp extends CI_Driver {
 									$pagination,
 									$offset_uri
 								);
-		
+
 		// -------------------------------------
 		// Build Pages
 		// -------------------------------------
-		
+
 		// Set title
 		if (isset($extra['title']))
 		{
@@ -280,9 +280,9 @@ class Streams_cp extends CI_Driver {
 		{
 			$data['no_entries_message'] = $extra['no_entries_message'];
 		}
-		
+
 		$table = $CI->load->view('admin/partials/streams/entries', $data, true);
-		
+
 		if ($view_override)
 		{
 			// Hooray, we are building the template ourself.
@@ -308,7 +308,7 @@ class Streams_cp extends CI_Driver {
 	 * @param	[array - current entry data]
 	 * @param	[bool - view override - setting this to true will build template]
 	 * @param	[array - extra params (see below)]
-	 * @param	[array - fields to skip]	 
+	 * @param	[array - fields to skip]
 	 * @return	mixed - void or string
 	 *
 	 * Extra parameters to pass in $extra array:
@@ -334,7 +334,7 @@ class Streams_cp extends CI_Driver {
 
 		// Load up things we'll need for the form
 		$CI->load->library(array('form_validation', 'streams_core/Fields'));
-	
+
 		if ($mode == 'edit')
 		{
 			if( ! $entry = $CI->row_m->get_row($entry_id, $stream, false))
@@ -358,7 +358,7 @@ class Streams_cp extends CI_Driver {
 					'stream'	=> $stream,
 					'entry'		=> $entry,
 					'mode'		=> $mode);
-		
+
 		// Set title
 		if (isset($extra['title']))
 		{
@@ -375,9 +375,9 @@ class Streams_cp extends CI_Driver {
 		{
 			$data['no_fields_message'] = $extra['no_fields_message'];
 		}
-		
+
 		$CI->template->append_js('streams/entry_form.js');
-		
+
 		if ($data['tabs'] === false)
 		{
 			$form = $CI->load->view('admin/partials/streams/form', $data, true);
@@ -392,15 +392,15 @@ class Streams_cp extends CI_Driver {
 
 			$form = $CI->load->view('admin/partials/streams/tabbed_form', $data, true);
 		}
-		
+
 		if ($view_override === false) return $form;
-		
+
 		$data['content'] = $form;
 		//$CI->data->content = $form;
 
 		$CI->data = new stdClass;
 		$CI->data->content = $form;
-		
+
 		$CI->template->build('admin/partials/blank_section', $data);
 	}
 
@@ -429,7 +429,7 @@ class Streams_cp extends CI_Driver {
 	 *
 	 * title	- Title of the form header (if using view override)
 	 *			$extra['title'] = 'Streams Sample';
-	 * 
+	 *
 	 * show_cancel - bool. Show the cancel button or not?
 	 * cancel_url - uri to link to for cancel button
 	 *
@@ -440,7 +440,7 @@ class Streams_cp extends CI_Driver {
 		$CI = get_instance();
 		$data = array();
 		$data['field'] = new stdClass;
-		
+
 		// We always need our stream
 		$stream = $this->stream_obj($stream_slug, $namespace);
 		if ( ! $stream) $this->log_error('invalid_stream', 'form');
@@ -487,11 +487,11 @@ class Streams_cp extends CI_Driver {
 		// These are assets field types may
 		// need when adding/editing fields
 		// -------------------------------------
-   		
+
    		$CI->type->load_field_crud_assets($ft_types);
-   		
+
    		// -------------------------------------
-        
+
 		// Need this for the view
 		$data['method'] = $method;
 
@@ -599,7 +599,7 @@ class Streams_cp extends CI_Driver {
 					continue;
 				}
 
-				foreach ($validation as $key => $value) 
+				foreach ($validation as $key => $value)
 				{
 					if (in_array($value['field'], $skip))
 					{
@@ -621,10 +621,10 @@ class Streams_cp extends CI_Driver {
 
 			// Set custom data from $skips param
 			if (count($skips) > 0)
-			{	
+			{
 				foreach ($skips as $skip)
 				{
-					if ($skip['slug'] == 'field_slug' && ( ! isset($skip['value']) || empty($skip['value'])))	
+					if ($skip['slug'] == 'field_slug' && ( ! isset($skip['value']) || empty($skip['value'])))
 					{
 						show_error('Set a default value for field_slug in your $skips param.');
 					}
@@ -645,19 +645,19 @@ class Streams_cp extends CI_Driver {
 									$post_data
 					))
 				{
-				
-					$CI->session->set_flashdata('notice', lang('streams:save_field_error'));	
+
+					$CI->session->set_flashdata('notice', lang('streams:save_field_error'));
 				}
 				else
 				{
 					// Add the assignment
 					if( ! $CI->streams_m->add_field_to_stream($CI->db->insert_id(), $stream->id, $post_data))
 					{
-						$CI->session->set_flashdata('notice', lang('streams:save_field_error'));	
+						$CI->session->set_flashdata('notice', lang('streams:save_field_error'));
 					}
 					else
 					{
-						$CI->session->set_flashdata('success', (isset($extra['success_message']) ? $extra['success_message'] : lang('streams:field_add_success')));	
+						$CI->session->set_flashdata('success', (isset($extra['success_message']) ? $extra['success_message'] : lang('streams:field_add_success')));
 					}
 				}
 			}
@@ -668,8 +668,8 @@ class Streams_cp extends CI_Driver {
 									array_merge($post_data, array('field_namespace' => $namespace))
 					))
 				{
-				
-					$CI->session->set_flashdata('notice', lang('streams:save_field_error'));	
+
+					$CI->session->set_flashdata('notice', lang('streams:save_field_error'));
 				}
 				else
 				{
@@ -681,7 +681,7 @@ class Streams_cp extends CI_Driver {
 										$post_data
 									))
 					{
-						$CI->session->set_flashdata('notice', lang('streams:save_field_error'));	
+						$CI->session->set_flashdata('notice', lang('streams:save_field_error'));
 					}
 					else
 					{
@@ -690,14 +690,14 @@ class Streams_cp extends CI_Driver {
 				}
 
 			}
-	
+
 			redirect($return);
 		}
 
 		// -------------------------------------
 		// See if we need our param fields
 		// -------------------------------------
-		
+
 		if ($CI->input->post('field_type') or $method == 'edit')
 		{
 			// Figure out where this is coming from - post or data
@@ -709,7 +709,7 @@ class Streams_cp extends CI_Driver {
 			{
 				$field_type = $data['current_field']->field_type;
 			}
-		
+
 			if (isset($CI->type->types->{$field_type}))
 			{
 				// Get the type so we can use the custom params
@@ -720,12 +720,12 @@ class Streams_cp extends CI_Driver {
 					$data['current_field'] = new stdClass();
 					$data['current_field']->field_data = array();
 				}
-				
+
 				// Get our standard params
 				require_once(PYROSTEAMS_DIR.'libraries/Parameter_fields.php');
-				
+
 				$data['parameters'] = new Parameter_fields();
-				
+
 				if (isset($data['current_type']->custom_parameters) and is_array($data['current_type']->custom_parameters))
 				{
 					// Build items out of post data
@@ -748,7 +748,7 @@ class Streams_cp extends CI_Driver {
 		}
 
 		// -------------------------------------
-		// Set our data for the form	
+		// Set our data for the form
 		// -------------------------------------
 
 		foreach ($validation as $field)
@@ -782,7 +782,7 @@ class Streams_cp extends CI_Driver {
 			elseif ($stream->title_column and $stream->title_column == $data['current_field']->field_slug) {
 				$data['title_column_status'] = true;
 			}
-			
+
 		} elseif ($data['allow_title_column_set'] and $method == 'new' and $_POST) {
 
 			if ($CI->input->post('title_column')) {
@@ -813,7 +813,7 @@ class Streams_cp extends CI_Driver {
 		$data['cancel_uri'] = (isset($extra['cancel_uri'])) ? $extra['cancel_uri'] : null;
 
 		$table = $CI->load->view('admin/partials/streams/field_form', $data, true);
-		
+
 		if ($view_override)
 		{
 			// Hooray, we are building the template ourself.
@@ -845,7 +845,7 @@ class Streams_cp extends CI_Driver {
 	 *
 	 * title	- Title of the page header (if using view override)
 	 *			$extra['title'] = 'Streams Sample';
-	 * 
+	 *
 	 * buttons	- an array of buttons (if using view override)
 	 *			$extra['buttons'] = array(
 	 *				'label' 	=> 'Delete',
@@ -865,7 +865,7 @@ class Streams_cp extends CI_Driver {
 		{
 			$segs = explode('/', $pagination_uri);
 			$page_uri = count($segs)+1;
-	
+
 	 		$offset = $CI->uri->segment($page_uri, 0);
 
 			// Calculate actual offset if not first page
@@ -885,7 +885,7 @@ class Streams_cp extends CI_Driver {
 		// -------------------------------------
 
 		if (is_numeric($pagination))
-		{	
+		{
 			$data['fields'] = $CI->fields_m->get_fields($namespace, $pagination, $offset, $skips);
 		}
 		else
@@ -898,7 +898,7 @@ class Streams_cp extends CI_Driver {
 		// -------------------------------------
 
 		if (is_numeric($pagination))
-		{	
+		{
 			$data['pagination'] = create_pagination(
 											$pagination_uri,
 											$CI->fields_m->count_fields($namespace),
@@ -907,13 +907,13 @@ class Streams_cp extends CI_Driver {
 										);
 		}
 		else
-		{ 
+		{
 			$data['pagination'] = null;
 		}
 
 		// Allow view to inherit custom 'Add Field' uri
 		$data['add_uri'] = isset($extra['add_uri']) ? $extra['add_uri'] : null;
-		
+
 		// -------------------------------------
 		// Build Pages
 		// -------------------------------------
@@ -925,7 +925,7 @@ class Streams_cp extends CI_Driver {
 		}
 
 		$table = $CI->load->view('admin/partials/streams/fields', $data, true);
-		
+
 		if ($view_override)
 		{
 			// Hooray, we are building the template ourself.
@@ -957,7 +957,7 @@ class Streams_cp extends CI_Driver {
 	 *
 	 * title	- Title of the page header (if using view override)
 	 *			$extra['title'] = 'Streams Sample';
-	 * 
+	 *
 	 * buttons	- an array of buttons (if using view override)
 	 *			$extra['buttons'] = array(
 	 *				'label' 	=> 'Delete',
@@ -998,7 +998,7 @@ class Streams_cp extends CI_Driver {
 		// -------------------------------------
 
 		if (is_numeric($pagination))
-		{	
+		{
 			$data['assignments'] = $CI->streams_m->get_stream_fields($stream->id, $pagination, $offset, $skips);
 		}
 		else
@@ -1009,7 +1009,7 @@ class Streams_cp extends CI_Driver {
 		// -------------------------------------
 		// Get number of fields total
 		// -------------------------------------
-		
+
 		$data['total_existing_fields'] = $CI->fields_m->count_fields($namespace);
 
 		// -------------------------------------
@@ -1017,7 +1017,7 @@ class Streams_cp extends CI_Driver {
 		// -------------------------------------
 
 		if (is_numeric($pagination))
-		{	
+		{
 			$data['pagination'] = create_pagination(
 											$pagination_uri,
 											$CI->fields_m->count_assignments_for_stream($stream->id),
@@ -1026,7 +1026,7 @@ class Streams_cp extends CI_Driver {
 										);
 		}
 		else
-		{ 
+		{
 			$data['pagination'] = false;
 		}
 
@@ -1048,12 +1048,12 @@ class Streams_cp extends CI_Driver {
 		{
 			$data['no_assignments_message'] = $extra['no_assignments_message'];
 		}
-		
+
 		$CI->template->append_metadata('<script>var fields_offset='.$offset.';</script>');
 		$CI->template->append_js('streams/assignments.js');
 
 		$table = $CI->load->view('admin/partials/streams/assignments', $data, true);
-		
+
 		if ($view_override)
 		{
 			// Hooray, we are building the template ourself.
@@ -1090,7 +1090,7 @@ class Streams_cp extends CI_Driver {
 		{
 			$this->log_error('invalid_assignment', 'teardown_assignment_field');
 		}
-		
+
 		// Get stream
 		$stream = $CI->streams_m->get_stream($assignment->stream_id);
 
@@ -1102,7 +1102,7 @@ class Streams_cp extends CI_Driver {
 		{
 			$this->log_error('invalid_assignment', 'teardown_assignment_field');
 		}
-		
+
 		// Remove the field only if unlocked and assigned once
 		if ($field->is_locked == 'no' or $CI->fields_m->count_assignments($assignment->field_id) == 1 or $force_delete)
 		{
