@@ -12,17 +12,17 @@ class Ajax extends MY_Controller {
     public function __construct()
     {
         parent::__construct();
-        
+
         // No matter what we don't show the profiler
         // in our AJAX calls.
         $this->output->enable_profiler(false);
 
         $this->error_message = 'invalid request';
- 
+
         // We need this for all of the variable setups in
         // the Type library __construct
         $this->load->library('streams_core/Type');
-        
+
         // Only AJAX gets through!
 		if ( ! $this->input->is_ajax_request()) die($this->error_message);
 
@@ -43,28 +43,28 @@ class Ajax extends MY_Controller {
 	{
 		// Out for certain characters
 		if ($this->input->post('data') == '-') return null;
-	
+
 		$this->load->language('streams_core/pyrostreams');
-	
+
 		$type = $this->input->post('data');
 		$namespace = $this->input->post('namespace');
-		
+
 		// Load paramaters
 		require_once(APPPATH.'modules/streams_core/libraries/Parameter_fields.php');
-		
+
 		$parameters = new Parameter_fields();
-	
+
 		// Load the proper class
 		$field_type = $this->type->load_single_type($type);
-		
+
 		// I guess we don't have any to show.
 		if ( ! isset($field_type->custom_parameters)) return null;
 
-		// Otherwise, the beat goes on.		
+		// Otherwise, the beat goes on.
 		$extra_fields = $field_type->custom_parameters;
-		
+
 		$data['count'] = 0;
-				
+
 		//Echo them out
 		foreach ($extra_fields as $field)
 		{
@@ -98,12 +98,12 @@ class Ajax extends MY_Controller {
 			{
 				return false;
 			}
-			
+
 			$data['input_slug'] = $field;
-		
+
 			ob_get_level() and ob_end_clean();
 			echo $this->load->view('extra_field', $data, true);
-			
+
 			$data['count']++;
 		}
 	}
@@ -126,13 +126,13 @@ class Ajax extends MY_Controller {
 		// Set the count by the offset for
 		// paginated lists
 		$order_count = $this->input->post('offset')+1;
-		
+
 		foreach ($ids as $id)
 		{
 			$this->db
 				->where('id', $id)
 				->update('data_field_assignments', array('sort_order' => $order_count));
-		
+
 			$order_count++;
 		}
 	}
@@ -153,7 +153,7 @@ class Ajax extends MY_Controller {
 		// Get the stream from the ID
 		$this->load->model('streams_core/streams_m');
 		$stream = $this->streams_m->get_stream($this->input->post('stream_id'));
-	
+
 		$ids = explode(',', $this->input->post('order'));
 
 		// Set the count by the offset for
@@ -198,9 +198,9 @@ class Ajax extends MY_Controller {
 
 		if ( ! $module) die($this->error_message);
 
-		$this->load->library('encrypt');
+		$this->load->library('encryption');
 
-		$module = $this->encrypt->decode($module);
+		$module = $this->encryption->decrypt($module);
 
 		if ( ! $module) die($this->error_message);
 
@@ -210,5 +210,5 @@ class Ajax extends MY_Controller {
 			die($this->error_message);
 		}
 	}
-		
+
 }
