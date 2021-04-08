@@ -15,7 +15,7 @@ class MY_Config extends CI_Config
 	 * @param string $uri the URI string
 	 * @return string
 	 */
-	public function site_url($uri = '')
+	public function site_url($uri = '', $protocol = NULL)
 	{
 		if (is_array($uri))
 		{
@@ -31,23 +31,23 @@ class MY_Config extends CI_Config
 			// -- Old busted shit
 			//$suffix = ($this->item('url_suffix') == false) ? '' : $this->item('url_suffix');
 			// -- end old busted shit
-			
+
 			// -- Hot newness
 			if(strpos($uri, '|') > 0)
 			{
 				// Split the pipe
 				list($uri, $suffix) = explode('|', $uri);
-				
+
 				// Dont forget the period
 				$suffix = '.'.$suffix;
 			}
-			
+
 			else
 			{
 				$suffix = ($this->item('url_suffix') == false) ? '' : $this->item('url_suffix');
 			}
 			// -- end host newness
-			
+
 			return $this->slash_item('base_url').$this->slash_item('index_page').preg_replace("|^/*(.+?)/*$|", "\\1", $uri).$suffix;
 		}
 	}
@@ -57,7 +57,7 @@ class MY_Config extends CI_Config
 	 *
 	 * @param string $item the config item key
 	 * @param string $value the config item value
-	 * @param string $index 
+	 * @param string $index
 	 */
 	public function set_item($item, $value, $index = '')
 	{
