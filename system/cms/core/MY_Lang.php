@@ -1,10 +1,10 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * The Language Handler Library.
- * 
+ *
  * @author      PyroCMS Dev Team
  * @copyright   Copyright (c) 2012, PyroCMS LLC
- * @package 	PyroCMS\Core\Libraries 
+ * @package 	PyroCMS\Core\Libraries
  */
 require APPPATH."libraries/MX/Lang.php";
 
@@ -20,7 +20,7 @@ class MY_Lang extends MX_Lang
 	 * @param string $line the language line
 	 * @return string
 	 */
-	public function line($line = '')
+	public function line($line, $log_errors = true)
 	{
 		$translation = ($line == '' OR !isset($this->language[$line])) ? false : $this->language[$line];
 
