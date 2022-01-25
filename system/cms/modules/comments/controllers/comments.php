@@ -11,7 +11,7 @@ class Comments extends Public_Controller
 {
 	/**
 	 * An array containing the validation rules
-	 * 
+	 *
 	 * @var array
 	 */
 	private $validation_rules = array(
@@ -39,7 +39,7 @@ class Comments extends Public_Controller
 
 	/**
 	 * Constructor method
-	 * 
+	 *
 	 * @return void
 	 */
 	public function __construct()
@@ -60,14 +60,14 @@ class Comments extends Public_Controller
 	 */
 	public function create($module = null)
 	{
-		if ( ! $module or ! $this->input->post('entry')) 
+		if ( ! $module or ! $this->input->post('entry'))
 		{
 			show_404();
 		}
 
 		// Get information back from the entry hash
 		// @HACK This should be part of the controllers lib, but controllers & libs cannot share a name
-		$entry = unserialize($this->encrypt->decode($this->input->post('entry')));
+		$entry = unserialize($this->encryption->decrypt($this->input->post('entry')));
 
 		$comment = array(
 			'module' 		=> $module,
@@ -210,7 +210,7 @@ class Comments extends Public_Controller
 
 	/**
 	 * Method to check whether we want to allow the comment or not
-	 * 
+	 *
 	 * @return array
 	 */
 	private function _allow_comment()
@@ -242,7 +242,7 @@ class Comments extends Public_Controller
 				'api_key' => Settings::get('akismet_api_key'),
 				'comment' => $comment
 			);
-                        
+
 			$this->akismet->init($config);
 
 			if ($this->akismet->is_spam())
@@ -255,13 +255,13 @@ class Comments extends Public_Controller
 				return array('status' => false, 'message' => implode('<br />', $this->akismet->get_errors()));
 			}
 		}
-	
+
 		// Do our own blacklist check.
 		$blacklist = array(
 			'email' => $this->input->post('email'),
 			'website' => $this->input->post('website')
 		);
-	
+
 		if ($this->comment_blacklists_m->is_blacklisted($blacklist))
 		{
 			return array('status' => false, 'message' => 'The website or email address posting this comment has been blacklisted.');
@@ -276,7 +276,7 @@ class Comments extends Public_Controller
 	 *
 	 * @param array $comment The comment data.
 	 * @param array $entry The entry data.
-	 * @return boolean 
+	 * @return boolean
 	 */
 	private function _send_email($comment, $entry)
 	{
