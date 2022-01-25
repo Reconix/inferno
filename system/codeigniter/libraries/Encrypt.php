@@ -2,37 +2,26 @@
 /**
  * CodeIgniter
  *
- * An open source application development framework for PHP
+ * An open source application development framework for PHP 5.2.4 or newer
  *
- * This content is released under the MIT License (MIT)
+ * NOTICE OF LICENSE
  *
- * Copyright (c) 2014 - 2019, British Columbia Institute of Technology
+ * Licensed under the Open Software License version 3.0
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This source file is subject to the Open Software License (OSL 3.0) that is
+ * bundled with this package in the files license.txt / license.rst.  It is
+ * also available through the world wide web at this URL:
+ * http://opensource.org/licenses/OSL-3.0
+ * If you did not receive a copy of the license and are unable to obtain it
+ * through the world wide web, please send an email to
+ * licensing@ellislab.com so we can send you a copy immediately.
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- * @package	CodeIgniter
- * @author	EllisLab Dev Team
- * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (https://ellislab.com/)
- * @copyright	Copyright (c) 2014 - 2019, British Columbia Institute of Technology (https://bcit.ca/)
- * @license	https://opensource.org/licenses/MIT	MIT License
- * @link	https://codeigniter.com
- * @since	Version 1.0.0
+ * @package		CodeIgniter
+ * @author		EllisLab Dev Team
+ * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (http://ellislab.com/)
+ * @license		http://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ * @link		http://codeigniter.com
+ * @since		Version 1.0
  * @filesource
  */
 defined('BASEPATH') OR exit('No direct script access allowed');
@@ -40,13 +29,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * CodeIgniter Encryption Class
  *
- * Provides two-way keyed encoding using Mcrypt
+ * Provides two-way keyed encoding using XOR Hashing and Mcrypt
  *
  * @package		CodeIgniter
  * @subpackage	Libraries
  * @category	Libraries
  * @author		EllisLab Dev Team
- * @link		https://codeigniter.com/user_guide/libraries/encryption.html
+ * @link		http://codeigniter.com/user_guide/libraries/encryption.html
  */
 class CI_Encrypt {
 
@@ -65,7 +54,7 @@ class CI_Encrypt {
 	protected $_hash_type		= 'sha1';
 
 	/**
-	 * Flag for the existence of mcrypt
+	 * Flag for the existance of mcrypt
 	 *
 	 * @var bool
 	 */
@@ -97,7 +86,7 @@ class CI_Encrypt {
 			show_error('The Encrypt library requires the Mcrypt extension.');
 		}
 
-		log_message('info', 'Encrypt Class Initialized');
+		log_message('debug', 'Encrypt Class Initialized');
 	}
 
 	// --------------------------------------------------------------------
@@ -122,7 +111,7 @@ class CI_Encrypt {
 
 			$key = config_item('encryption_key');
 
-			if ( ! self::strlen($key))
+			if ($key === FALSE)
 			{
 				show_error('In order to use the encryption class requires that you set an encryption key in your config file.');
 			}
@@ -198,7 +187,7 @@ class CI_Encrypt {
 	 * This allows for backwards compatibility and a method to transition to the
 	 * new encryption algorithms.
 	 *
-	 * For more details, see https://codeigniter.com/user_guide/installation/upgrade_200.html#encryption
+	 * For more details, see http://codeigniter.com/user_guide/installation/upgrade_200.html#encryption
 	 *
 	 * @param	string
 	 * @param	int		(mcrypt mode constant)
@@ -252,7 +241,7 @@ class CI_Encrypt {
 		$string = $this->_xor_merge($string, $key);
 
 		$dec = '';
-		for ($i = 0, $l = self::strlen($string); $i < $l; $i++)
+		for ($i = 0, $l = strlen($string); $i < $l; $i++)
 		{
 			$dec .= ($string[$i++] ^ $string[$i]);
 		}
@@ -275,8 +264,7 @@ class CI_Encrypt {
 	{
 		$hash = $this->hash($key);
 		$str = '';
-
-		for ($i = 0, $ls = self::strlen($string), $lh = self::strlen($hash); $i < $ls; $i++)
+		for ($i = 0, $ls = strlen($string), $lh = strlen($hash); $i < $ls; $i++)
 		{
 			$str .= $string[$i] ^ $hash[($i % $lh)];
 		}
@@ -296,7 +284,7 @@ class CI_Encrypt {
 	public function mcrypt_encode($data, $key)
 	{
 		$init_size = mcrypt_get_iv_size($this->_get_cipher(), $this->_get_mode());
-		$init_vect = mcrypt_create_iv($init_size, MCRYPT_DEV_URANDOM);
+		$init_vect = mcrypt_create_iv($init_size, MCRYPT_RAND);
 		return $this->_add_cipher_noise($init_vect.mcrypt_encrypt($this->_get_cipher(), $key, $data, $this->_get_mode(), $init_vect), $key);
 	}
 
@@ -314,14 +302,13 @@ class CI_Encrypt {
 		$data = $this->_remove_cipher_noise($data, $key);
 		$init_size = mcrypt_get_iv_size($this->_get_cipher(), $this->_get_mode());
 
-		if ($init_size > self::strlen($data))
+		if ($init_size > strlen($data))
 		{
 			return FALSE;
 		}
 
-		$init_vect = self::substr($data, 0, $init_size);
-		$data      = self::substr($data, $init_size);
-
+		$init_vect = substr($data, 0, $init_size);
+		$data = substr($data, $init_size);
 		return rtrim(mcrypt_decrypt($this->_get_cipher(), $key, $data, $this->_get_mode(), $init_vect), "\0");
 	}
 
@@ -341,7 +328,7 @@ class CI_Encrypt {
 		$key = $this->hash($key);
 		$str = '';
 
-		for ($i = 0, $j = 0, $ld = self::strlen($data), $lk = self::strlen($key); $i < $ld; ++$i, ++$j)
+		for ($i = 0, $j = 0, $ld = strlen($data), $lk = strlen($key); $i < $ld; ++$i, ++$j)
 		{
 			if ($j >= $lk)
 			{
@@ -371,7 +358,7 @@ class CI_Encrypt {
 		$key = $this->hash($key);
 		$str = '';
 
-		for ($i = 0, $j = 0, $ld = self::strlen($data), $lk = self::strlen($key); $i < $ld; ++$i, ++$j)
+		for ($i = 0, $j = 0, $ld = strlen($data), $lk = strlen($key); $i < $ld; ++$i, ++$j)
 		{
 			if ($j >= $lk)
 			{
@@ -479,43 +466,7 @@ class CI_Encrypt {
 		return hash($this->_hash_type, $str);
 	}
 
-	// --------------------------------------------------------------------
-
-	/**
-	 * Byte-safe strlen()
-	 *
-	 * @param	string	$str
-	 * @return	int
-	 */
-	protected static function strlen($str)
-	{
-		return defined('MB_OVERLOAD_STRING')
-			? mb_strlen($str, '8bit')
-			: strlen($str);
-	}
-
-	// --------------------------------------------------------------------
-
-	/**
-	 * Byte-safe substr()
-	 *
-	 * @param	string	$str
-	 * @param	int	$start
-	 * @param	int	$length
-	 * @return	string
-	 */
-	protected static function substr($str, $start, $length = NULL)
-	{
-		if (defined('MB_OVERLOAD_STRING'))
-		{
-			// mb_substr($str, $start, null, '8bit') returns an empty
-			// string on PHP 5.3
-			isset($length) OR $length = ($start >= 0 ? self::strlen($str) - $start : -$start);
-			return mb_substr($str, $start, $length, '8bit');
-		}
-
-		return isset($length)
-			? substr($str, $start, $length)
-			: substr($str, $start);
-	}
 }
+
+/* End of file Encrypt.php */
+/* Location: ./system/libraries/Encrypt.php */
