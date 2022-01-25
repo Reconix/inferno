@@ -239,7 +239,7 @@ class CI_Session_cookie extends CI_Session_driver {
 		// Do we need encryption? If so, load the encryption class
 		if ($this->sess_encrypt_cookie === TRUE)
 		{
-			$this->CI->load->library('encrypt');
+			$this->CI->load->library('encryption');
 		}
 
 		// Check for database
@@ -386,7 +386,7 @@ class CI_Session_cookie extends CI_Session_driver {
 		if ($this->sess_encrypt_cookie === TRUE)
 		{
 			// Decrypt the cookie data
-			$session = $this->CI->encrypt->decode($session);
+			$session = $this->CI->encryption->decrypt($session);
 		}
 		else
 		{
@@ -669,7 +669,7 @@ class CI_Session_cookie extends CI_Session_driver {
 		$cookie_data = $this->_serialize($cookie_data);
 
 		$cookie_data = ($this->sess_encrypt_cookie === TRUE)
-			? $this->CI->encrypt->encode($cookie_data)
+			? $this->CI->encryption->encrypt($cookie_data)
 			// if encryption is not used, we provide an md5 hash to prevent userside tampering
 			: $cookie_data.md5($cookie_data.$this->encryption_key);
 
