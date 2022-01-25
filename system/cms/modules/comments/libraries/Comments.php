@@ -11,49 +11,49 @@ class Comments
 {
 	/**
 	 * The name of the module in use
-	 * 
+	 *
 	 * @var	string
 	 */
 	protected $module;
 
 	/**
 	 * Singular language key
-	 * 
+	 *
 	 * @var	string
 	 */
 	protected $singular;
 
 	/**
 	 * Plural language key
-	 * 
+	 *
 	 * @var	string
 	 */
 	protected $plural;
 
 	/**
 	 * Entry for this, be it an auto increment id or string
-	 * 
+	 *
 	 * @var	string|int
 	 */
 	protected $entry_id;
 
 	/**
 	 * Title of the entry
-	 * 
+	 *
 	 * @var	string
 	 */
 	protected $entry_title;
 
 	/**
 	 * What is the URL of this entry?
-	 * 
+	 *
 	 * @var	string
 	 */
 	protected $entry_uri;
 
 	/**
 	 * Encrypted hash containing title, singular and plural keys
-	 * 
+	 *
 	 * @var	bool
 	 */
 	protected $entry_hash;
@@ -99,7 +99,7 @@ class Comments
 			isset($params['entry_title']) and $this->entry_title = $params['entry_title'];
 		}
 	}
-	
+
 	/**
 	 * Display comments
 	 *
@@ -109,11 +109,11 @@ class Comments
 	{
 		// Fetch comments, then process them
 		$comments = $this->process(ci()->comment_m->get_by_entry($this->module, $this->singular, $this->entry_id));
-		
+
 		// Return the awesome comments view
 		return $this->load_view('display', compact(array('comments')));
 	}
-	
+
 	/**
 	 * Display form
 	 *
@@ -218,7 +218,7 @@ class Comments
 				$comment->{$field} = escape_tags($value);
 			}
 		}
-		
+
 		return $comments;
 	}
 
@@ -230,7 +230,7 @@ class Comments
 	protected function load_view($view, $data)
 	{
 		$ext = pathinfo($view, PATHINFO_EXTENSION) ? '' : '.php';
-		
+
 		if (file_exists(ci()->template->get_views_path().'modules/comments/'.$view.$ext))
 		{
 			// look in the theme for overloaded views
@@ -241,7 +241,7 @@ class Comments
 			// or look in the module
 			list($path, $view) = Modules::find($view, 'comments', 'views/');
 		}
-		
+
 		// add this view location to the array
 		ci()->load->set_view_path($path);
 		ci()->load->vars($data);
@@ -256,7 +256,7 @@ class Comments
 	 */
 	protected function encode_entry()
 	{
-		return ci()->encrypt->encode(serialize(array(
+		return ci()->encryption->encrypt(serialize(array(
 			'id'			=>	$this->entry_id,
 			'title'			=> 	$this->entry_title,
 			'uri'			=>	$this->entry_uri,
