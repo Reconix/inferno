@@ -21,10 +21,23 @@ class MY_Loader extends MX_Loader
 		{
 			define('SPARKPATH', 'system/sparks/');
 		}
-		
+
 		parent::__construct();
-		
+
 		$this->add_package_path(SHARED_ADDONPATH);
+	}
+
+	/** Load a module view **/
+	public function view($view, $vars = array(), $return = false)
+	{
+			list($path, $_view) = Modules::find($view, $this->_module, 'views/');
+
+			if ($path != false) {
+					$this->_ci_view_paths = array($path => true) + $this->_ci_view_paths;
+					$view = $_view;
+			}
+
+			return $this->_ci_load(array('_ci_view' => $view, '_ci_vars' => ((method_exists($this, '_ci_object_to_array')) ? $this->_ci_object_to_array($vars) : $this->_ci_prepare_view_vars($vars)), '_ci_return' => $return));
 	}
 
 	/**
